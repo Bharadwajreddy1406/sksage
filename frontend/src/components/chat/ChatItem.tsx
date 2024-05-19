@@ -7,8 +7,8 @@ import { useState } from "react";
 
 
 function extractCodeFromString(message: string) {
-  if (message.includes("")) {
-    const blocks = message.split("");
+  if (message.includes("```")) {
+    const blocks = message.split("```");
     return blocks;
   }
 }
