@@ -18,7 +18,6 @@ type Message={
 const Chat = () =>{
     const navigate = useNavigate();
     const inputRef = useRef<HTMLTextAreaElement | null>(null)
-    const chatBoxRef = useRef<HTMLDivElement | null>(null)
     const auth = useAuth();
     const [chatMessages,setChatMessages] = useState<Message[]>([])
     const handleChatSubmit = async()=>{
@@ -31,7 +30,6 @@ const Chat = () =>{
         setChatMessages((prev)=>[...prev,newMessage]);
         const chatData = await sendChatRequest(content);
         setChatMessages([...chatData.chats]);
-        chatBoxRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -139,7 +137,7 @@ const Chat = () =>{
         ):(
             <Box sx={{display:'flex',flex:{md:0.8,xs:1,sm:1},flexDirection:'column',px:3}}>
             <Typography sx={{textAlign:"center",fontSize:"40px",color:"white",mb:2,mx:"auto",fontWeight:"600"}}>Model - llama3-8b-8192 </Typography>
-            <Box sx={{width:"100%",height:"60vh",borderRadius:3,mx:"auto",display:'flex',flexDirection:'column',overflow:'scroll',overflowX:"hidden",overflowY:"auto",scrollBehavior:"smooth",scrollbarWidth: "thin",scrollbarColor: "#888 transparent"}} ref={chatBoxRef}>
+            <Box sx={{width:"100%",height:"60vh",borderRadius:3,mx:"auto",display:'flex',flexDirection:'column',overflow:'scroll',overflowX:"hidden",overflowY:"auto",scrollBehavior:"smooth",scrollbarWidth: "thin",scrollbarColor: "#888 transparent"}} >
                 {chatMessages.map((chat,index)=>
                 (
                 <div><ChatItem content={chat.content} role={chat.role} key={index}/></div>))}
