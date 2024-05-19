@@ -10,6 +10,10 @@ import CustomizedInput from "../components/shared/CustomizedInput";
 import { useNavigate } from "react-router-dom";
 import {IoIosLogIn} from "react-icons/io";
 import { FaMicrophone } from "react-icons/fa";
+import { useVoiceToText } from "react-speakup";
+
+
+
 type Message={
     role:"user"|"assistant";
     content:string;
@@ -80,9 +84,44 @@ const Chat = () =>{
     }
     const [isClicked, setIsClicked] = useState(false);
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+  
+    const { startListening, stopListening, transcript } = useVoiceToText();
     const handleClick = () => {
-        setIsClicked(!isClicked);
+        if (!isClicked) {
+            setIsClicked(true);
+            console.log("start");
+            startListening();
+        } else {
+            setIsClicked(false);
+            console.log("stop");
+            stopListening();
+            console.log(transcript);
+        }
     };
+
+
+
+
+
+
+
+
+
+
 
     useLayoutEffect(()=>{
         if(auth?.isLoggedIn && auth.user)
