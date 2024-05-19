@@ -36,7 +36,15 @@ const ChatItem = ({ content, role }: { content: string, role: "user" | "assistan
   const [isClicked, setIsClicked] = useState(false);
     
   const handleClick = () => {
-      setIsClicked(!isClicked);
+      const speechSynthesis = window.speechSynthesis;
+        if (isClicked) {
+            speechSynthesis.cancel();
+            setIsClicked(false);
+        } else {
+            const speechText = new SpeechSynthesisUtterance(content);
+            speechSynthesis.speak(speechText);
+            setIsClicked(true);
+        }
   };
   return (
     role == "assistant"
