@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import CustomizedInput from "../components/shared/CustomizedInput";
 import { useNavigate } from "react-router-dom";
 import {IoIosLogIn} from "react-icons/io";
-
+import { FaMicrophone } from "react-icons/fa";
 type Message={
     role:"user"|"assistant";
     content:string;
@@ -54,7 +54,7 @@ const Chat = () =>{
         const YearsOfExperience = formData.get("Years of experience") as string;
         const Topic = formData.get("Topic") as string;
         if(!(Topic == "" || Difficulty == "" || Specilization=="" || YearsOfExperience=="")) {
-            const content = `Take the interview on ${Topic}, i have ${YearsOfExperience} years of experience in this topic, i specialize in ${Specilization} from this topic, start with first question in ${Difficulty} difficulty.`;
+            const content = Take the interview on ${Topic}, i have ${YearsOfExperience} years of experience in this topic, i specialize in ${Specilization} from this topic, start with first question in ${Difficulty} difficulty.;
             const newMessage: Message = {role:"user",content}
             setChatMessages((prev)=>[...prev,newMessage]);
             const chatData = await sendChatRequest(content);
@@ -78,6 +78,12 @@ const Chat = () =>{
             }
         }
     }
+    const [isClicked, setIsClicked] = useState(false);
+    
+    const handleClick = () => {
+        setIsClicked(!isClicked);
+    };
+
     useLayoutEffect(()=>{
         if(auth?.isLoggedIn && auth.user)
             {
@@ -137,31 +143,34 @@ const Chat = () =>{
         ):(
             <Box sx={{display:'flex',flex:{md:0.8,xs:1,sm:1},flexDirection:'column',px:3}}>
             <Typography sx={{textAlign:"center",fontSize:"40px",color:"white",mb:2,mx:"auto",fontWeight:"600"}}>Model - llama3-8b-8192 </Typography>
-            <Box sx={{width:"100%",height:"60vh",borderRadius:3,mx:"auto",display:'flex',flexDirection:'column',overflow:'scroll',overflowX:"hidden",overflowY:"auto",scrollBehavior:"smooth",scrollbarWidth: "thin",scrollbarColor: "#888 transparent"}} >
+            <Box sx={{width:"100%",height:"60vh",borderRadius:3,mx:"auto",display:'flex',flexDirection:'column',overflow:'scroll',overflowX:"hidden",overflowY:"auto",scrollBehavior:"smooth",scrollbarWidth: "thin",scrollbarColor: "#888 transparent"}}>
                 {chatMessages.map((chat,index)=>
                 (
                 <div><ChatItem content={chat.content} role={chat.role} key={index}/></div>))}
             </Box>
             <div style={{width:"100%",borderRadius:8,backgroundColor:"rgb(17,27,39)",display:"flex",margin:"auto", outline: "1px solid rgba(255, 255, 255, 0.5)"}}>
-            <textarea
-              ref={inputRef}
-              onKeyDown={handleKeyDown}
-              style={{
-                width: "100%",
-                backgroundColor: "transparent",
-                padding: "30px",
-                border: "none",
-                outline: "none",
-                color: "white",
-                fontSize: "20px",
-                overflowY: "auto",
-                scrollbarWidth: "thin",
-                scrollbarColor: "#888 transparent",
-                resize: "none",
-              }}
-            ></textarea>
-
-            <IconButton onClick={handleChatSubmit} sx={{ml:"auto",color:"white"}}><IoMdSend/></IconButton>
+                <div onClick={handleClick} style={{ padding: "30px" , backgroundColor: "rgba(150, 100, 200, 0.2)", display: "flex", justifyContent: "center", alignItems: "center", outline: "none" }} >
+                    {isClicked ? <FaMicrophone style={{ color: 'rgba(0, 100, 255, 1)', scale:"1.75" }} /> : <FaMicrophone style={{ scale:"1.5" }}/>}
+                </div>
+                <textarea
+                ref={inputRef}
+                onKeyDown={handleKeyDown}
+                style={{
+                    width: "100%",
+                    backgroundColor: "transparent",
+                    padding: "30px",
+                    border: "none",
+                    outline: "none",
+                    color: "white",
+                    fontSize: "20px",
+                    overflowY: "auto",
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#888 transparent",
+                    resize: "none",
+                }}
+                ></textarea>
+                
+                <IconButton onClick={handleChatSubmit} sx={{ml:"auto",color:"white"}}><IoMdSend/></IconButton>
             </div>
             </Box>
         )}
