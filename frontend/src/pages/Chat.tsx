@@ -54,7 +54,7 @@ const Chat = () =>{
         const YearsOfExperience = formData.get("Years of experience") as string;
         const Topic = formData.get("Topic") as string;
         if(!(Topic == "" || Difficulty == "" || Specilization=="" || YearsOfExperience=="")) {
-            const content = Take the interview on ${Topic}, i have ${YearsOfExperience} years of experience in this topic, i specialize in ${Specilization} from this topic, start with first question in ${Difficulty} difficulty.;
+            const content = `Take the interview on ${Topic}, i have ${YearsOfExperience} years of experience in this topic, i specialize in ${Specilization} from this topic, start with first question in ${Difficulty} difficulty.`;
             const newMessage: Message = {role:"user",content}
             setChatMessages((prev)=>[...prev,newMessage]);
             const chatData = await sendChatRequest(content);
