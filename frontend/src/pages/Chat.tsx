@@ -17,7 +17,8 @@ type Message={
 
 const Chat = () =>{
     const navigate = useNavigate();
-    const inputRef = useRef<HTMLInputElement | null>(null)
+    const inputRef = useRef<HTMLTextAreaElement | null>(null)
+    const chatBoxRef = useRef<HTMLDivElement | null>(null)
     const auth = useAuth();
     const [chatMessages,setChatMessages] = useState<Message[]>([])
     const handleChatSubmit = async()=>{
@@ -30,13 +31,23 @@ const Chat = () =>{
         setChatMessages((prev)=>[...prev,newMessage]);
         const chatData = await sendChatRequest(content);
         setChatMessages([...chatData.chats]);
-
+        chatBoxRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
-    const handleKeyPress = (event:React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Enter') {
-          handleChatSubmit();
-        }
-      };
+
+  function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleChatSubmit();
+    } else if (event.key === "Enter" && event.shiftKey) {
+      const textarea = event.currentTarget;
+      const cursorPosition = textarea.selectionStart;
+      const value = textarea.value;
+      textarea.value = value.substring(0, cursorPosition) +"\n" + value.substring(cursorPosition);
+      textarea.selectionStart = textarea.selectionEnd = cursorPosition + 1;
+      event.preventDefault();
+    }
+  }
+      
     const handleFormSubmit = async(e:React.FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -128,13 +139,30 @@ const Chat = () =>{
         ):(
             <Box sx={{display:'flex',flex:{md:0.8,xs:1,sm:1},flexDirection:'column',px:3}}>
             <Typography sx={{textAlign:"center",fontSize:"40px",color:"white",mb:2,mx:"auto",fontWeight:"600"}}>Model - llama3-8b-8192 </Typography>
-            <Box sx={{width:"100%",height:"60vh",borderRadius:3,mx:"auto",display:'flex',flexDirection:'column',overflow:'scroll',overflowX:"hidden",overflowY:"auto",scrollBehavior:"smooth"}} >
+            <Box sx={{width:"100%",height:"60vh",borderRadius:3,mx:"auto",display:'flex',flexDirection:'column',overflow:'scroll',overflowX:"hidden",overflowY:"auto",scrollBehavior:"smooth",scrollbarWidth: "thin",scrollbarColor: "#888 transparent"}} ref={chatBoxRef}>
                 {chatMessages.map((chat,index)=>
                 (
                 <div><ChatItem content={chat.content} role={chat.role} key={index}/></div>))}
             </Box>
-            <div style={{width:"100%",borderRadius:8,backgroundColor:"rgb(17,27,39)",display:"flex",margin:"auto"}}>
-            <input onKeyDown={handleKeyPress} ref ={inputRef} type="text" style={{width:"100%",backgroundColor:"transparent", padding:"30px",border:"none",outline:"none",color:"white",fontSize:"20px"}} />
+            <div style={{width:"100%",borderRadius:8,backgroundColor:"rgb(17,27,39)",display:"flex",margin:"auto", outline: "1px solid rgba(255, 255, 255, 0.5)"}}>
+            <textarea
+              ref={inputRef}
+              onKeyDown={handleKeyDown}
+              style={{
+                width: "100%",
+                backgroundColor: "transparent",
+                padding: "30px",
+                border: "none",
+                outline: "none",
+                color: "white",
+                fontSize: "20px",
+                overflowY: "auto",
+                scrollbarWidth: "thin",
+                scrollbarColor: "#888 transparent",
+                resize: "none",
+              }}
+            ></textarea>
+
             <IconButton onClick={handleChatSubmit} sx={{ml:"auto",color:"white"}}><IoMdSend/></IconButton>
             </div>
             </Box>
