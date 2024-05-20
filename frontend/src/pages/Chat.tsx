@@ -10,7 +10,6 @@ import CustomizedInput from "../components/shared/CustomizedInput";
 import { useNavigate } from "react-router-dom";
 import {IoIosLogIn} from "react-icons/io";
 import { FaMicrophone } from "react-icons/fa";
-import { useVoiceToText } from "react-speakup";
 
 
 
@@ -99,17 +98,11 @@ const Chat = () =>{
 
     
   
-    const { startListening, stopListening, transcript } = useVoiceToText();
     const handleClick = () => {
         if (!isClicked) {
             setIsClicked(true);
-            console.log("start");
-            startListening();
         } else {
             setIsClicked(false);
-            console.log("stop");
-            stopListening();
-            console.log(transcript);
         }
     };
 
