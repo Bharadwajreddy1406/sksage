@@ -9,7 +9,8 @@ import toast from "react-hot-toast";
 import CustomizedInput from "../components/shared/CustomizedInput";
 import { useNavigate } from "react-router-dom";
 import {IoIosLogIn} from "react-icons/io";
-import { Chatinput } from "../components/chat/Chatinput";
+import { FaMicrophone } from "react-icons/fa";
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 type Message={
     role:"user"|"assistant";
@@ -21,13 +22,11 @@ const Chat = () => {
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
     const auth = useAuth();
     const [chatMessages, setChatMessages] = useState<Message[]>([]);
-    const [transcriptf, setTranscriptf] = useState("");
 
     const handleChatSubmit = async () => {
         const content = inputRef.current?.value as string;
         if (inputRef && inputRef.current) {
             inputRef.current.value = "";
-            setTranscriptf("");
         }
         const newMessage: Message = { role: "user", content };
         setChatMessages((prev) => [...prev, newMessage]);
@@ -103,11 +102,25 @@ const Chat = () => {
         }
     }, [auth, navigate]);
 
+      const {
+        listening,
+        resetTranscript,
+        transcript      } = useSpeechRecognition();
+    const startListening = () => SpeechRecognition.startListening({ continuous: true });
+    const stopListening = () => SpeechRecognition.stopListening();
+
+    useEffect(() => {
+            if (inputRef.current && listening) {
+                inputRef.current.value = transcript;
+            };
+      }, [transcript]);
+
     useEffect(() => {
         if (inputRef.current) {
-            inputRef.current.value = transcriptf;
-        }
-    }, [transcriptf]);
+            resetTranscript();
+        };
+
+    }, [listening]);
 
     return (
         <Box sx={{ display: 'flex', flex: 1, width: '100%', height: '100%', mt: 3, gap: 3 }}>
@@ -148,14 +161,23 @@ const Chat = () => {
                 </Box>
             ) : (
                 <Box sx={{ display: 'flex', flex: { md: 0.8, xs: 1, sm: 1 }, flexDirection: 'column', px: 3 }}>
-                    <Typography sx={{ textAlign: "center", fontSize: "40px", color: "white", mb: 2, mx: "auto", fontWeight: "600" }}>Model - llama3-8b-8192 </Typography>
+                    <Typography sx={{ textAlign: "center", fontSize: "40px", color: "white", mb: 2, mx: "auto", fontWeight: "600" }}>Model - llama3-70b-8192</Typography>
                     <Box sx={{ width: "100%", height: "60vh", borderRadius: 3, mx: "auto", display: 'flex', flexDirection: 'column', overflow: 'scroll', overflowX: "hidden", overflowY: "auto", scrollBehavior: "smooth", scrollbarWidth: "thin", scrollbarColor: "#888 transparent" }}>
                         {chatMessages.map((chat, index) =>
                             (
                                 <div key={index}><ChatItem content={chat.content} role={chat.role} /></div>))}
                     </Box>
                     <div style={{ width: "100%", borderRadius: 8, backgroundColor: "rgb(17,27,39)", display: "flex", margin: "auto", outline: "1px solid rgba(255, 255, 255, 0.5)" }}>
-                        <Chatinput transcriptf={transcriptf} setTranscriptf={setTranscriptf} />
+                        <div style={{ padding: "30px" , backgroundColor: "rgba(150, 100, 200, 0.2)", display: "flex", justifyContent: "center", alignItems: "center", outline: "none" }}>
+                            <div 
+                                onClick={listening ? stopListening : startListening} 
+                            >
+                                {listening 
+                                ? <FaMicrophone style={{ color: 'rgba(0, 100, 255, 1)', transform: 'scale(1.75)' }} /> 
+                                : <FaMicrophone style={{ transform: 'scale(1.5)' }} />
+                                }
+                            </div>
+                        </div>
                         <textarea
                             ref={inputRef}
                             onKeyDown={handleKeyDown}
