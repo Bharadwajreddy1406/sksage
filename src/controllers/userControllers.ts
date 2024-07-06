@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import e, { Request, Response } from "express";
 import UserModel from "../Models/UserModel.js";
 import bcrypt from "bcrypt";
+import { createToken } from "../utils/token_manager.js";
 
 
 export async function signUpUser(req: Request, res: Response) {
@@ -73,13 +74,29 @@ export const loginUser = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
+        res.clearCookie("auth_token",{
+            httpOnly:true,
+            path:"/",
+            domain:"localhost",
+            signed:true
+        });
+
+        const token = createToken(UserName, "2h"); 
+        
+        res.cookie("auth_token",token,{
+            path: "/",   // where the cookie is stored
+            domain: "localhost",  // where the cookie is sent
+            expires: new Date(Date.now() + 1000 * 60 * 60 * 2),
+            httpOnly: true,
+            signed: true,
+        });
 
         // Updating timestamps while logins, can remove for now le
         // user.loginTimestamps.push(new Date());
         // await user.save();
 
         // Respond with success
-        return res.status(200).json({ message: "Login successful" });
+        return res.status(200).json({ message: "Login successful", token : token });
     } catch (error) {
         console.error("Error logging in user:", error.message);
         return res.status(500).json({ message: "Server error. Please try again later." });
