@@ -5,11 +5,12 @@ import {
   useEffect,
   useContext,
 } from "react";
-import { loginUser } from "../helpers/api";
+import { checkAuthStatus, loginUser, logOut, signUpUser } from "../helpers/api";
 
 type User = {
   username: string;
-  password:string;
+  // password:string;
+  role: string;
 };
 
 type UserAuth = {
@@ -25,21 +26,60 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setuser] = useState<User | null>(null);
   const [isLoggedIn, setisLoggedIn] = useState(false);
 
-  useEffect(() => {
-    // todo
-  }, []);
+
+  // useEffect(() => {
+  //       async function checkStatus() {
+  //         const data = await checkAuthStatus();
+  //         if(data){
+  //           setuser({username : data.username,role:data.role})
+  //           setisLoggedIn(true);
+  //         }else{
+
+  //         }
+  //       }
+  //       checkStatus();
+  // }, []);
+
+
+  useEffect(()=>{
+    //fetch if the user's cookies are valid then skip login
+    async function checkStatus() {
+        const data = await checkAuthStatus();
+        if(data){
+            setuser({username:data.username, role:data.role});
+            setisLoggedIn(true);
+        }
+    }
+checkStatus();
+},[]);
 
   const login = async (username: string, password: string) => {
     const data = await loginUser(username, password);
     if (data) {
-        setuser({username : data.username, password:data.password})
+        setuser({username : data.username,role:data.role})
         setisLoggedIn(true);
         console.log(isLoggedIn?"hii dumb":"not dumb")
     }
 
   };
-  const signup = async (username: string, password: string) => {};
-  const logout = async () => {};
+
+
+  const signup = async (username: string, password: string) => {
+
+    const data = await signUpUser(username, password);
+    if (data) {
+        console.log(isLoggedIn?"first time huh!":"check your creds bruh")
+    }
+
+  };
+
+
+  const logout = async () => {
+    await logOut();
+    setuser(null);
+    setisLoggedIn(false);
+    window.location.reload();
+  };
 
   const value = {
     user,

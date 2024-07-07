@@ -11,12 +11,12 @@ axios.defaults.withCredentials = true;
 
 import { BrowserRouter } from "react-router-dom";
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <BrowserRouter>
-    <AuthProvider>
-      <React.StrictMode>
+  <React.StrictMode>
+    <BrowserRouter>
+      <AuthProvider>
         <Toaster />
         <App />
-      </React.StrictMode>
-    </AuthProvider>
-  </BrowserRouter>
+      </AuthProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 );

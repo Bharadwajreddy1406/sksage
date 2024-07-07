@@ -1,31 +1,56 @@
-import React from "react";
-import { useRef, FormEvent } from "react";
+// import React, { useEffect } from "react";
+import { useRef, FormEvent} from "react";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const Signup: React.FC = () => {
   // Define refs with proper types
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-
+  const auth = useAuth();
+  const nav = useNavigate();
+  // const [signing, setsigning] = useState(false);
   // Handle form submission
-  const handleSubmit = (event: FormEvent) => {
-    event.preventDefault(); // Prevent default form submission behavior
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    
 
+    const userName = usernameRef.current?.value || "";
+    const passWord = passwordRef.current?.value || "";
+    try {
+      toast.loading("signing in", { id: "signing" });
+      await auth?.signup(userName, passWord);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast.success("signed in", { id: "signing" });
+      nav("/")
+    } catch (error) {
+      toast.error("unable to get in", { id: "signing" });
+    }
     // Retrieve values from the refs, using nullish coalescing to handle possible null refs
     const username = usernameRef.current?.value || "";
     const password = passwordRef.current?.value || "";
 
     // Alert the form details
-    console.log(
-      `Email: ${username}\nPassword: ${password}`
-    );
+    console.log(`Email: ${username}\nPassword: ${password}`);
   };
 
+  // useEffect(() => {
+  //   if(signing){
+  //     nav("/")
+  //   }
+  // }, [auth]);
+
   return (
-    <div className="max-w-lg  mx-auto  bg-neutral  mt-20" >
-        <div className=" h-16 w-200 flex justify-center items-center text-center drop-shadow-sm font-bold from-neutral-700 text-2xl">
-          Sign Up here!
-        </div>
-      <form className=" p-10 shadow-2xl rounded-xl" style={{height:"310px"}} onSubmit={handleSubmit}>
+    <div className="max-w-lg  mx-auto  bg-neutral  mt-20">
+      <div className=" h-16 w-200 flex justify-center items-center text-center drop-shadow-sm font-bold from-neutral-700 text-2xl">
+        Sign Up here!
+      </div>
+      <form
+        className=" p-10 shadow-2xl rounded-xl"
+        style={{ height: "310px" }}
+        onSubmit={handleSubmit}
+      >
         <div className="mb-5">
           <label
             htmlFor="username"

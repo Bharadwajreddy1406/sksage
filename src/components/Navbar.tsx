@@ -1,5 +1,5 @@
 // import { Fragment } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   Disclosure,
   DisclosureButton,
@@ -12,6 +12,8 @@ import {
 } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useAuth } from '../context/AuthContext'
+// import { toFormData } from 'axios'
+import toast from 'react-hot-toast'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', current: false },
@@ -24,6 +26,7 @@ function classNames(...classes: string[]) {
 }
 
 export default function Navbar() {
+  const nav = useNavigate();
 
   const auth = useAuth();
   return (
@@ -113,7 +116,17 @@ export default function Navbar() {
                           <button className={classNames(focus ? 'bg-gray-100' : '', 'flex px-4 py-2 w-full  text-sm text-gray-700')}
                           onClick={()=>{
                             alert("Logging out")
-                            auth?.logout();
+                            
+                            {try {
+                              toast.loading("Logging out" , {id:"logout"});
+                              auth?.logout();
+                              nav("/")
+                              toast.success("Logged out successfully" , {id:"logout"});
+                            } catch (error) {
+                              toast.error("Something went wrong" , {id:"logout"});
+              
+                            }}
+                            
                           }}
                           >
                             Sign Out
