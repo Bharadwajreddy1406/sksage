@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import e, { Request, Response } from "express";
+import e, { NextFunction, Request, Response } from "express";
 import UserModel from "../Models/UserModel.js";
 import bcrypt from "bcrypt";
 import { createToken } from "../utils/token_manager.js";
@@ -81,7 +81,7 @@ export const loginUser = async (req: Request, res: Response) => {
             signed:true
         });
 
-        const token = createToken(UserName, "2h"); 
+        const token = createToken(user._id.toString(), user.username, "7d");
         
         res.cookie("auth_token",token,{
             path: "/",   // where the cookie is stored
@@ -96,9 +96,53 @@ export const loginUser = async (req: Request, res: Response) => {
         // await user.save();
 
         // Respond with success
-        return res.status(200).json({ message: "Login successful", token : token });
+        return res.status(200).json({ message: "Login successful", username:user.username, role:user.role });
     } catch (error) {
         console.error("Error logging in user:", error.message);
         return res.status(500).json({ message: "Server error. Please try again later." });
     }
+};
+
+
+
+export const verifyUser = async (req:Request,res: Response,next: NextFunction) =>{
+    try {
+        const user = await UserModel.findById(res.locals.jwtData.id);
+        if(!user)
+            {
+                return res.status(401).send("User not registered or Token malfunctioned");
+            }
+        if (user._id.toString()!== res.locals.jwtData.id){
+            return res.status(401).send("Permissions didnt match");
+        }
+        return res.status(200).json({ message: "Login successful", username:user.username, role:user.role });
+    } catch (error) {
+        console.log(error);
+        return res.status(200).json({message:"Error",cause: error.message});
+    }
+};
+
+
+export const userLogout = async (req:Request,res: Response,next: NextFunction) =>{
+  try {
+      const user = await UserModel.findById(res.locals.jwtData.id);
+      if(!user)
+          {
+              return res.status(401).send("User not registered or Token malfunctioned");
+          }
+      if (user._id.toString()!== res.locals.jwtData.id){
+          return res.status(401).send("Permissions didnt match");
+      }
+      res.clearCookie("auth_token", {
+        httpOnly: true,
+        domain: "localhost",
+        signed: true,
+        path: "/",
+      });
+
+      return res.status(200).json({ message: "Login successful", username:user.username, role:user.role });
+    } catch (error) {
+      console.log(error);
+      return res.status(200).json({message:"Error",cause: error.message});
+  }
 };
